@@ -553,26 +553,26 @@
      구름 7송이 × (마루 3 + 띠 3) = 42개 영역
      ========================================================= */
   var CLOUDS = [
-    { x: 400, y: 398, s: 1.00, rot: 0 },
-    { x: 206, y: 196, s: 0.54, rot: -14 },
-    { x: 594, y: 196, s: 0.54, rot: 14 },
-    { x: 188, y: 588, s: 0.50, rot: 10 },
-    { x: 612, y: 588, s: 0.50, rot: -10 },
-    { x: 400, y: 130, s: 0.38, rot: 0 },
-    { x: 400, y: 674, s: 0.38, rot: 0 }
+    { x: 400, y: 404, s: 1.12, rot: 0 },
+    { x: 204, y: 206, s: 0.64, rot: -16 },
+    { x: 596, y: 206, s: 0.64, rot: 16 },
+    { x: 204, y: 596, s: 0.64, rot: 16 },
+    { x: 596, y: 596, s: 0.64, rot: -16 }
   ];
 
   function buildCloud() {
     var groups = [];
     CLOUDS.forEach(function (c, ci) {
-      var bandL = 'M-130,-30 L-58,-30 L-58,22 L-130,22 A26,26 0 0 1 -130,-30 Z';
-      var bandM = 'M-58,-30 L58,-30 L58,22 L-58,22 Z';
-      var bandR = 'M58,-30 L130,-30 A26,26 0 0 1 130,22 L58,22 Z';
+      var bandL = 'M-120,-26 L-58,-26 L-58,22 L-120,22 A24,24 0 0 1 -120,-26 Z';
+      var bandM = 'M-58,-26 L58,-26 L58,22 L-58,22 Z';
+      var bandR = 'M58,-26 L120,-26 A24,24 0 0 1 120,22 L58,22 Z';
 
       var paths = [
-        { id: 'cloud-' + ci + '-lobeL', label: '구름 왼쪽 마루 ' + (ci + 1), d: 'M-160,-30 A45,45 0 0 1 -70,-30 Z' },
-        { id: 'cloud-' + ci + '-lobeC', label: '구름 가운데 마루 ' + (ci + 1), d: 'M-70,-30 A70,70 0 0 1 70,-30 Z' },
-        { id: 'cloud-' + ci + '-lobeR', label: '구름 오른쪽 마루 ' + (ci + 1), d: 'M70,-30 A45,45 0 0 1 160,-30 Z' },
+        { id: 'cloud-' + ci + '-curlL', label: '구름 왼쪽 소용돌이 ' + (ci + 1), d: annulus(-120, -2, 48, 31, 68, 292) },
+        { id: 'cloud-' + ci + '-curlR', label: '구름 오른쪽 소용돌이 ' + (ci + 1), d: annulus(120, -2, 48, 31, 248, 472) },
+        { id: 'cloud-' + ci + '-lobeL', label: '구름 왼쪽 마루 ' + (ci + 1), d: 'M-136,-26 A38,38 0 0 1 -60,-26 Z' },
+        { id: 'cloud-' + ci + '-lobeC', label: '구름 가운데 마루 ' + (ci + 1), d: 'M-60,-26 A60,60 0 0 1 60,-26 Z' },
+        { id: 'cloud-' + ci + '-lobeR', label: '구름 오른쪽 마루 ' + (ci + 1), d: 'M60,-26 A38,38 0 0 1 136,-26 Z' },
         { id: 'cloud-' + ci + '-bandL', label: '구름 왼쪽 띠 ' + (ci + 1), d: bandL },
         { id: 'cloud-' + ci + '-bandM', label: '구름 가운데 띠 ' + (ci + 1), d: bandM },
         { id: 'cloud-' + ci + '-bandR', label: '구름 오른쪽 띠 ' + (ci + 1), d: bandR }
@@ -585,9 +585,16 @@
     });
 
     var decor = [
-      '<rect x="24" y="24" width="752" height="752" rx="18" fill="#FCF6E7"/>',
-      '<rect x="24" y="24" width="752" height="752" rx="18" fill="none" stroke="#DECDA8" stroke-width="1.6"/>',
-      '<rect x="36" y="36" width="728" height="728" rx="12" fill="none" stroke="#C9AE7E" stroke-width="0.9" stroke-dasharray="1 7" stroke-linecap="round"/>'
+      '<defs>' +
+        '<linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">' +
+          '<stop offset="0" stop-color="#F0F4EF"/>' +
+          '<stop offset="0.55" stop-color="#E6EEE7"/>' +
+          '<stop offset="1" stop-color="#DCE8E1"/>' +
+        '</linearGradient>' +
+      '</defs>',
+      '<rect x="24" y="24" width="752" height="752" rx="18" fill="url(#skyGrad)"/>',
+      '<rect x="24" y="24" width="752" height="752" rx="18" fill="none" stroke="#BCCEC2" stroke-width="1.6"/>',
+      '<rect x="36" y="36" width="728" height="728" rx="12" fill="none" stroke="#A8BFAF" stroke-width="0.9" stroke-dasharray="1 7" stroke-linecap="round"/>'
     ];
 
     return { decor: decor, groups: groups };
@@ -820,6 +827,8 @@
         map[base + '-bandL'] = HEX.cheong;
         map[base + '-bandR'] = HEX.cheong;
         map[base + '-bandM'] = (ci % 2 === 0) ? HEX.byeok : HEX.nok;
+        map[base + '-curlL'] = HEX.hwang;
+        map[base + '-curlR'] = HEX.hwang;
       });
     }
     return map;
