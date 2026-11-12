@@ -1,687 +1,1176 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>컴퓨터과학 기초 & 정보윤리 인터랙티브 학습</title>
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#F2E7D0" />
+<meta name="description" content="오방정색과 오방간색으로 전통 단청 문양(연화문·운문)을 칠하고, 나만의 단청 카드로 저장하는 인터랙티브 웹앱." />
+<title>오방색 단청 칠하기 · 五方色 丹靑</title>
 
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            50: '#f8fafc',
-                            100: '#f1f5f9',
-                            500: '#64748b',
-                            600: '#475569',
-                            700: '#334155',
-                            800: '#1e293b',
-                            900: '#0f172a',
-                        },
-                        accent: {
-                            500: '#d97706', // warm amber
-                            600: '#b45309',
-                        }
-                    },
-                    fontFamily: {
-                        sans: ['Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet" />
 
-    <style>
-        /* Base styles */
-        body {
-            font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
-            background-color: #f5f5f4; /* warm neutral background */
-            color: #1c1917;
-        }
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          title: ['"Gowun Batang"', '"Noto Serif KR"', 'serif'],
+          body: ['"Noto Sans KR"', '"Apple SD Gothic Neo"', '"Malgun Gothic"', 'sans-serif'],
+        },
+        colors: {
+          ink: '#2E2A24',
+          haji: '#F2E7D0',
+          gold: '#B08A4F',
+        },
+      },
+    },
+  };
+</script>
 
-        /* <!-- Chosen Palette: Warm Neutrals with Slate and Amber Accents -->
-        <!-- Application Structure Plan: 
-            The SPA is structured as a dynamic, interactive textbook/dashboard with a sidebar navigation.
-            This layout was chosen because the source report covers distinct but equally important domains 
-            (Ethics/IP, Data Representation, Algorithms/Structures). A tabbed interface prevents cognitive overload,
-            allowing users to focus on one major concept at a time.
-            Key interactions include:
-            1. Tab navigation for thematic grouping.
-            2. An interactive Chart.js visualization for Cyber Violence to make categorical data explorable.
-            3. A step-by-step interactive flow for Analog-to-Digital conversion to explain the sequential process.
-            4. A fully functional Stack and Queue simulator to provide hands-on understanding of abstract data structures.
-        -->
-        <!-- Visualization & Content Choices: 
-            1. Cyber Violence Types -> Goal: Inform/Organize -> Viz: Chart.js Doughnut Chart -> Interaction: Click slice to see definition -> Justification: Breaks down a long list into a digestible, explorable visual. Library: Chart.js.
-            2. Intellectual Property / CCL -> Goal: Organize -> Viz: Interactive CSS Cards -> Interaction: Hover to reveal details -> Justification: Groups related legal concepts clearly.
-            3. Analog to Digital (Sampling, Quantization, Encoding) -> Goal: Explain Process -> Viz: Step-by-step progress UI -> Interaction: Next/Prev buttons -> Justification: Shows the linear nature of data conversion.
-            4. Stack & Queue -> Goal: Inform/Interact -> Viz: Interactive HTML/CSS Simulator -> Interaction: Add/Remove buttons -> Justification: The best way to learn data structures is by actually using them. No SVG/Mermaid used, pure DOM manipulation.
-        -->
-        <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
-        */
+<style>
+  :root {
+    --ink: #2E2A24;
+    --ink-soft: #6E5F49;
+    --gold: #B08A4F;
+    --gold-soft: #D6C29A;
+    --dan-red: #A6382C;
+    --paper: #FBF5E6;
+  }
 
-        /* Chart Container Mandatory Styles */
-        .chart-container {
-            position: relative;
-            width: 100%;
-            max-width: 500px;
-            margin-left: auto;
-            margin-right: auto;
-            height: 350px;
-            max-height: 400px;
-        }
+  html { -webkit-text-size-adjust: 100%; }
 
-        /* Custom Animations & UI Elements */
-        .tab-content { display: none; animation: fadeIn 0.3s ease-in-out; }
-        .tab-content.active { display: block; }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+  body {
+    font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+    color: var(--ink);
+    background-color: #F2E7D0;
+    background-image:
+      radial-gradient(circle at 18% 6%, rgba(255, 252, 243, 0.85), transparent 42%),
+      radial-gradient(circle at 84% 78%, rgba(206, 175, 124, 0.35), transparent 55%),
+      radial-gradient(circle at 50% 110%, rgba(176, 138, 79, 0.18), transparent 60%),
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.45 0 0 0 0 0.37 0 0 0 0 0.24 0 0 0 0.07 0'/></filter><rect width='140' height='140' filter='url(%23n)'/></svg>");
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
 
-        .hover-card { transition: all 0.2s ease; }
-        .hover-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+  .obang-strip {
+    height: 6px;
+    background: linear-gradient(90deg,
+      #1F5C99 0 20%, #B23A2E 20% 40%, #D9A63C 40% 60%, #EFE3C6 60% 80%, #2C2A27 80% 100%);
+    box-shadow: 0 2px 8px -4px rgba(60, 40, 20, 0.5);
+  }
 
-        /* Simulator Elements */
-        .sim-block {
-            transition: all 0.3s ease;
-            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        @keyframes popIn {
-            from { opacity: 0; transform: scale(0.5); }
-            to { opacity: 1; transform: scale(1); }
-        }
+  .panel {
+    background: linear-gradient(180deg, rgba(253, 248, 237, 0.94), rgba(248, 240, 223, 0.9));
+    border: 1px solid var(--gold-soft);
+    border-radius: 18px;
+    box-shadow: 0 22px 48px -30px rgba(80, 58, 26, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  }
 
-        /* Vector vs Bitmap Simulation */
-        .bitmap-sim:hover { image-rendering: pixelated; filter: contrast(1.5) drop-shadow(2px 4px 6px black); letter-spacing: 5px;}
-        .vector-sim:hover { transform: scale(1.5); }
-    </style>
+  .pattern-stage {
+    position: relative;
+    border-radius: 14px;
+    background:
+      radial-gradient(circle at 50% 40%, rgba(255, 255, 255, 0.75), rgba(244, 234, 213, 0.35) 70%),
+      #F8F1E0;
+    border: 1px solid #DBC9A5;
+    box-shadow: inset 0 0 40px rgba(190, 165, 120, 0.22);
+  }
+  .pattern-stage::before,
+  .pattern-stage::after {
+    content: '';
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border: 1.5px solid var(--gold);
+    opacity: 0.65;
+    pointer-events: none;
+  }
+  .pattern-stage::before { top: 8px; left: 8px; border-right: none; border-bottom: none; border-top-left-radius: 4px; }
+  .pattern-stage::after { bottom: 8px; right: 8px; border-left: none; border-top: none; border-bottom-right-radius: 4px; }
+
+  /* ---------- 문양 영역 ---------- */
+  .region {
+    stroke: #9C8659;
+    stroke-width: 1.4;
+    stroke-linejoin: round;
+    cursor: pointer;
+    transition: fill 0.28s ease, stroke 0.15s ease, stroke-width 0.15s ease, filter 0.15s ease;
+  }
+  .region.filled {
+    stroke: rgba(74, 56, 30, 0.62);
+    stroke-width: 1.1;
+  }
+  .region:hover,
+  .region:focus-visible {
+    stroke: #241F17;
+    stroke-width: 3;
+    filter: brightness(1.07) saturate(1.04);
+    outline: none;
+  }
+  @keyframes region-pop {
+    0% { filter: brightness(1.35) saturate(1.1); }
+    100% { filter: brightness(1) saturate(1); }
+  }
+  .region.pop { animation: region-pop 0.42s ease; }
+  #patternSvg { touch-action: manipulation; }
+
+  /* ---------- 탭 ---------- */
+  .tab {
+    font-family: 'Gowun Batang', 'Noto Serif KR', serif;
+    font-size: 15px;
+    line-height: 1;
+    padding: 9px 15px;
+    border-radius: 999px;
+    color: #7A6748;
+    border: 1px solid rgba(176, 138, 79, 0.35);
+    background: rgba(255, 255, 255, 0.42);
+    transition: all 0.18s ease;
+    white-space: nowrap;
+  }
+  .tab .hanja { font-size: 10.5px; opacity: 0.72; margin-left: 5px; letter-spacing: 0.08em; }
+  .tab:hover { background: #fff; color: #4A3B26; }
+  .tab.is-active {
+    background: #2E2A24;
+    border-color: #2E2A24;
+    color: #FBF5E6;
+    box-shadow: 0 8px 18px -12px rgba(0, 0, 0, 0.8);
+  }
+
+  /* ---------- 팔레트 ---------- */
+  .swatch {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 2px 5px;
+    border-radius: 11px;
+    border: 1px solid transparent;
+    transition: all 0.16s ease;
+  }
+  .swatch:hover { background: rgba(255, 255, 255, 0.6); border-color: var(--gold-soft); }
+  .swatch .dot {
+    width: 30px;
+    height: 30px;
+    border-radius: 999px;
+    box-shadow: inset 0 0 0 1px rgba(40, 30, 15, 0.22), 0 2px 4px -2px rgba(0, 0, 0, 0.35);
+    transition: transform 0.16s ease, box-shadow 0.16s ease;
+  }
+  .swatch[aria-pressed='true'] {
+    background: #FFF9EA;
+    border-color: var(--gold);
+  }
+  .swatch[aria-pressed='true'] .dot {
+    transform: scale(1.06);
+    box-shadow: 0 0 0 2px #FFF9EA, 0 0 0 4px var(--gold), inset 0 0 0 1px rgba(40, 30, 15, 0.2);
+  }
+  .sw-hanja { font-family: 'Gowun Batang', serif; font-size: 12.5px; color: #4A3B26; line-height: 1; }
+  .sw-name { font-size: 10.5px; color: #8B7551; line-height: 1; }
+
+  /* ---------- 버튼 ---------- */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 11px 14px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    transition: all 0.18s ease;
+  }
+  .btn-primary {
+    background: linear-gradient(180deg, #B34335, #9A2E24);
+    color: #FDF6E7;
+    box-shadow: 0 12px 22px -14px rgba(140, 40, 30, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  }
+  .btn-primary:hover { filter: brightness(1.07); transform: translateY(-1px); }
+  .btn-ghost {
+    background: rgba(255, 255, 255, 0.62);
+    border: 1px solid var(--gold-soft);
+    color: #5C4C36;
+  }
+  .btn-ghost:hover { background: #fff; border-color: var(--gold); }
+  .btn-outline {
+    border: 1px dashed var(--gold);
+    color: #8A5B2A;
+    background: rgba(255, 255, 255, 0.38);
+  }
+  .btn-outline:hover { background: #FFF8E8; border-style: solid; }
+  .btn:disabled { opacity: 0.38; cursor: not-allowed; transform: none; filter: none; }
+
+  #tooltip {
+    position: fixed;
+    z-index: 90;
+    pointer-events: none;
+    opacity: 0;
+    transform: translate(-50%, -100%);
+    transition: opacity 0.13s ease;
+    max-width: 216px;
+    background: #2E2A24;
+    color: #F7EFDD;
+    font-size: 11.5px;
+    line-height: 1.55;
+    padding: 7px 10px;
+    border-radius: 8px;
+    box-shadow: 0 10px 24px -10px rgba(0, 0, 0, 0.6);
+  }
+  #tooltip.on { opacity: 1; }
+  #tooltip::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: -4px;
+    width: 8px;
+    height: 8px;
+    background: #2E2A24;
+    transform: translateX(-50%) rotate(45deg);
+  }
+  #tooltip .tt-hanja { font-family: 'Gowun Batang', serif; font-size: 13px; color: #F3DCA8; }
+
+  /* ---------- 카드 ---------- */
+  .modal-backdrop { background: rgba(38, 30, 20, 0.58); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); }
+
+  .card-paper {
+    position: relative;
+    background: linear-gradient(170deg, #FDF9EE 0%, #FAF3E1 55%, #F4EAD3 100%);
+    border-radius: 6px;
+    box-shadow: 0 30px 70px -24px rgba(0, 0, 0, 0.55), inset 0 0 0 1px rgba(228, 214, 182, 0.9);
+  }
+  .card-paper::before {
+    content: '';
+    position: absolute;
+    inset: 9px;
+    border: 1px solid #C9AE7E;
+    border-radius: 3px;
+    pointer-events: none;
+  }
+  .card-band-inner {
+    display: flex;
+    height: 9px;
+    gap: 2px;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .card-band-inner span { flex: 1; }
+  .card-title {
+    font-family: 'Gowun Batang', 'Noto Serif KR', serif;
+    font-size: 21px;
+    text-align: center;
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px dashed transparent;
+    color: #3B2F22;
+    padding: 2px 4px;
+  }
+  .card-title:hover { border-bottom-color: #DCCBA6; }
+  .card-title:focus { outline: none; border-bottom-color: var(--gold); }
+  .seal {
+    width: 42px;
+    height: 42px;
+    background: #A6382C;
+    color: #FBEFE0;
+    display: grid;
+    place-items: center;
+    font-family: 'Gowun Batang', serif;
+    font-size: 19px;
+    border-radius: 4px;
+    box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.24), 0 4px 10px -6px rgba(120, 30, 20, 0.9);
+  }
+
+  .fade-in { animation: fadeIn 0.22s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px) scale(0.985); } to { opacity: 1; transform: none; } }
+</style>
 </head>
-<body class="flex flex-col md:flex-row h-screen w-full overflow-hidden">
 
-    <!-- Sidebar Navigation -->
-    <nav class="w-full md:w-72 bg-white shadow-xl flex flex-col z-20 h-auto md:h-full flex-shrink-0">
-        <div class="p-6 border-b border-gray-100 bg-stone-100">
-            <h1 class="text-2xl font-bold text-stone-800 leading-tight">🖥️ 컴퓨터과학<br><span class="text-accent-600">기초 마스터</span></h1>
-            <p class="text-sm text-stone-500 mt-2">인터랙티브 핵심 요약 가이드</p>
+<body class="font-body antialiased">
+<div class="obang-strip"></div>
+
+<header class="mx-auto max-w-6xl px-5 pt-8 pb-5 text-center sm:pt-10">
+  <div class="flex items-center justify-center gap-3 text-[11px] tracking-[0.35em] text-[#8B7551]">
+    <span class="h-px w-8 bg-[#C6AF83] sm:w-12"></span>
+    <span>五方色 · 丹靑</span>
+    <span class="h-px w-8 bg-[#C6AF83] sm:w-12"></span>
+  </div>
+  <h1 class="font-title mt-3 text-[28px] leading-tight text-[#2B2118] sm:text-4xl md:text-[42px]">
+    오방색 단청 칠하기
+  </h1>
+  <p class="mt-2.5 text-[13px] leading-relaxed text-[#6F604A] sm:text-[15px]">
+    전통 문양에 오방색을 입혀, 나만의 단청을 완성해 보세요.
+  </p>
+</header>
+
+<main class="mx-auto max-w-6xl px-4 pb-16 sm:px-5">
+  <div class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_356px] lg:items-start">
+
+    <!-- 문양 작업대 -->
+    <section class="panel p-3 sm:p-5">
+      <div class="mb-3 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-2" role="tablist" aria-label="전통 문양 선택">
+          <button type="button" class="tab is-active" data-pattern="lotus" role="tab" aria-selected="true">
+            연화문<span class="hanja">蓮花文</span>
+          </button>
+          <button type="button" class="tab" data-pattern="cloud" role="tab" aria-selected="false">
+            운문<span class="hanja">雲文</span>
+          </button>
         </div>
-        <div class="flex-1 overflow-y-auto p-4 space-y-2 flex flex-row md:flex-col overflow-x-auto md:overflow-x-hidden">
-            <button onclick="switchTab('tab-ethics')" id="btn-tab-ethics" class="nav-btn w-full text-left px-4 py-3 rounded-xl font-medium text-stone-600 hover:bg-stone-50 hover:text-accent-600 transition-colors flex items-center whitespace-nowrap md:whitespace-normal flex-shrink-0 active-nav">
-                <span class="mr-3 text-lg">🌐</span> 정보사회와 윤리
+        <div class="flex items-center gap-2.5">
+          <div class="h-1.5 w-16 overflow-hidden rounded-full bg-[#E6D9BE] sm:w-24">
+            <div id="progressBar" class="h-full rounded-full bg-gradient-to-r from-[#3E7D5B] to-[#1F5C99] transition-all duration-300" style="width:0%"></div>
+          </div>
+          <span id="progressText" class="text-[11px] text-[#8B7551]">0개 영역</span>
+        </div>
+      </div>
+
+      <div class="pattern-stage p-2 sm:p-3">
+        <svg id="patternSvg" viewBox="0 0 800 800" class="block h-auto w-full select-none" role="group" aria-label="단청 문양 색칠 영역"></svg>
+      </div>
+
+      <div class="mt-3 flex flex-wrap items-center justify-between gap-2 text-[11px] text-[#8B7551]">
+        <p class="flex items-center gap-1.5">
+          <span class="inline-block h-1.5 w-1.5 rounded-full bg-[#B23A2E]"></span>
+          영역을 눌러 칠하기 · 마우스를 올리면 윤곽이 살아납니다
+        </p>
+        <p class="hidden sm:block">숫자키 <span class="text-[#5C4C36]">1~0</span> 으로 색 바꾸기 · <span class="text-[#5C4C36]">Ctrl+Z</span> 되돌리기</p>
+      </div>
+    </section>
+
+    <!-- 도구 -->
+    <aside class="space-y-4">
+
+      <section class="panel p-4">
+        <div class="flex items-center gap-3">
+          <span id="brushDot" class="grid h-14 w-14 shrink-0 place-items-center rounded-full font-title text-xl text-white shadow-[inset_0_0_0_1px_rgba(0,0,0,0.2),0_6px_14px_-8px_rgba(0,0,0,0.6)]" style="background:#1F5C99">靑</span>
+          <div class="min-w-0">
+            <p class="text-[10.5px] tracking-[0.18em] text-[#9A8768]">지금 고른 붓</p>
+            <p id="brushName" class="font-title mt-0.5 text-[19px] leading-tight text-[#33291D]">청 靑</p>
+            <p id="brushMeaning" class="mt-1 text-[11.5px] leading-snug text-[#6E5F49]">동쪽 · 봄 · 나무를 상징하는 오방정색</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel p-4">
+        <div class="mb-2.5 flex items-baseline justify-between">
+          <h2 class="font-title text-[13px] tracking-[0.14em] text-[#8B7551]">오방정색 · 五方正色</h2>
+          <span class="text-[10px] text-[#A6936F]">정색 5</span>
+        </div>
+        <div id="paletteJeong" class="grid grid-cols-5 gap-1"></div>
+
+        <div class="my-3 flex items-center gap-2">
+          <span class="h-px flex-1 bg-[#E2D3B4]"></span>
+          <span class="text-[10px] tracking-[0.2em] text-[#B3A081]">間色</span>
+          <span class="h-px flex-1 bg-[#E2D3B4]"></span>
+        </div>
+
+        <div class="mb-2.5 flex items-baseline justify-between">
+          <h2 class="font-title text-[13px] tracking-[0.14em] text-[#8B7551]">오방간색 · 五方間色</h2>
+          <span class="text-[10px] text-[#A6936F]">사이색 5</span>
+        </div>
+        <div id="paletteGan" class="grid grid-cols-5 gap-1"></div>
+      </section>
+
+      <section class="panel p-4">
+        <div class="space-y-2">
+          <button type="button" id="btnTraditional" class="btn btn-primary">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3z"/><path d="M18.5 15.5l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8.8-2.2z"/></svg>
+            전통 배색 적용
+          </button>
+          <div class="grid grid-cols-2 gap-2">
+            <button type="button" id="btnUndo" class="btn btn-ghost" disabled>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14L4 9l5-5"/><path d="M4 9h9a6 6 0 0 1 0 12h-3"/></svg>
+              되돌리기
             </button>
-            <button onclick="switchTab('tab-data')" id="btn-tab-data" class="nav-btn w-full text-left px-4 py-3 rounded-xl font-medium text-stone-600 hover:bg-stone-50 hover:text-accent-600 transition-colors flex items-center whitespace-nowrap md:whitespace-normal flex-shrink-0">
-                <span class="mr-3 text-lg">💾</span> 자료와 정보 표현
+            <button type="button" id="btnReset" class="btn btn-ghost" disabled>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v6h6"/><path d="M3.5 9a9 9 0 1 1 1.9 9.4"/></svg>
+              전체 초기화
             </button>
-            <button onclick="switchTab('tab-structure')" id="btn-tab-structure" class="nav-btn w-full text-left px-4 py-3 rounded-xl font-medium text-stone-600 hover:bg-stone-50 hover:text-accent-600 transition-colors flex items-center whitespace-nowrap md:whitespace-normal flex-shrink-0">
-                <span class="mr-3 text-lg">🗜️</span> 압축과 자료구조
-            </button>
+          </div>
+          <button type="button" id="btnCard" class="btn btn-outline">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v5"/></svg>
+            나만의 단청 카드 만들기
+          </button>
         </div>
-        <div class="p-4 border-t border-gray-100 hidden md:block">
-            <div class="bg-amber-50 p-4 rounded-xl border border-amber-100">
-                <p class="text-xs text-amber-800 font-medium">💡 팁: 각 섹션의 차트와 버튼을 클릭하여 직접 체험하며 학습해 보세요.</p>
-            </div>
-        </div>
-    </nav>
+        <p class="mt-3 text-center text-[10.5px] leading-relaxed text-[#A6936F]">
+          색을 칠한 뒤 카드로 완성하면<br class="sm:hidden" /> PNG 이미지로 간직할 수 있어요.
+        </p>
+      </section>
 
-    <!-- Main Content Area -->
-    <main class="flex-1 overflow-y-auto bg-stone-50 p-4 md:p-8 lg:p-12 relative w-full h-full">
-        <div class="max-w-5xl mx-auto">
+      <section class="px-1">
+        <p class="text-center text-[10.5px] leading-relaxed text-[#9A8768]">
+          오방정색은 동서남북과 중앙을,<br />오방간색은 그 사이의 기운을 담은 색입니다.
+        </p>
+      </section>
+    </aside>
+  </div>
+</main>
 
-            <!-- TAB 1: 정보사회와 윤리 -->
-            <section id="tab-ethics" class="tab-content active">
-                <header class="mb-8">
-                    <span class="text-accent-600 font-bold tracking-wider text-sm uppercase">Section 1</span>
-                    <h2 class="text-3xl md:text-4xl font-extrabold text-stone-800 mt-2 mb-4">정보사회 변화와 윤리</h2>
-                    <p class="text-lg text-stone-600 leading-relaxed">
-                        이 섹션에서는 건강한 정보사회를 만들기 위한 필수 지식을 다룹니다. 인터넷 중독과 사이버 폭력의 심각성을 이해하고, 소중한 개인정보와 지식재산권을 어떻게 보호하고 올바르게 공유할 수 있는지 인터랙티브 차트와 카드를 통해 학습합니다.
-                    </p>
-                </header>
+<footer class="mx-auto max-w-6xl px-5 pb-10 text-center text-[10.5px] tracking-[0.12em] text-[#A3906E]">
+  五方色 丹靑 · 전통의 색을 손끝으로
+</footer>
 
-                <!-- Cyber Violence Chart Section -->
-                <div class="bg-white rounded-2xl shadow-sm border border-stone-200 p-6 mb-8">
-                    <h3 class="text-xl font-bold text-stone-800 mb-4 flex items-center"><span class="mr-2">⚠️</span> 사이버 폭력의 7가지 주요 유형</h3>
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-                        <!-- Chart Container -->
-                        <div class="chart-container">
-                            <canvas id="violenceChart"></canvas>
-                        </div>
-                        <!-- Info Panel -->
-                        <div id="violence-info" class="bg-stone-50 p-6 rounded-xl border border-stone-100 h-full flex flex-col justify-center min-h-[250px]">
-                            <p class="text-stone-500 text-center italic">차트의 조각을 클릭하면 상세 설명이 표시됩니다.</p>
-                        </div>
-                    </div>
-                </div>
+<div id="tooltip" role="tooltip"></div>
 
-                <!-- Intellectual Property Section -->
-                <div class="mb-8">
-                    <h3 class="text-2xl font-bold text-stone-800 mb-6 flex items-center"><span class="mr-2">⚖️</span> 지식재산권의 이해</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border-t-4 border-t-blue-500 hover-card">
-                            <h4 class="font-bold text-lg mb-2">산업재산권</h4>
-                            <ul class="text-sm text-stone-600 space-y-2">
-                                <li><strong class="text-stone-800">특허권:</strong> 자연법칙을 이용한 기술적 사상(아이디어/발명) 보호</li>
-                                <li><strong class="text-stone-800">실용신안권:</strong> 라이프사이클이 짧은 물품의 형태, 구조 고안 보호</li>
-                                <li><strong class="text-stone-800">디자인권:</strong> 물품 외관의 시각적 디자인 보호</li>
-                            </ul>
-                        </div>
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border-t-4 border-t-green-500 hover-card">
-                            <h4 class="font-bold text-lg mb-2">저작권</h4>
-                            <ul class="text-sm text-stone-600 space-y-2">
-                                <li><strong class="text-stone-800">일반 저작권:</strong> 창작물과 저작인접권(실연, 방송 등) 보호</li>
-                                <li><strong class="text-stone-800">컴퓨터프로그램:</strong> 프로그램에 나타난 구체적인 <span class="bg-yellow-100 px-1">소스코드(표현)</span> 보호</li>
-                            </ul>
-                        </div>
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border-t-4 border-t-purple-500 hover-card">
-                            <h4 class="font-bold text-lg mb-2">신지식재산권</h4>
-                            <ul class="text-sm text-stone-600 space-y-2">
-                                <li><strong class="text-stone-800">반도체 배치:</strong> 집적회로 설계 도면 보호</li>
-                                <li><strong class="text-stone-800">영업비밀:</strong> 비공지성, 비밀관리성, 유용성을 가진 미공개 기술/경영 정보</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
+<!-- 나만의 단청 카드 모달 -->
+<div id="cardModal" class="modal-backdrop fixed inset-0 z-50 hidden items-start justify-center overflow-y-auto p-4 sm:items-center">
+  <div class="my-auto w-full max-w-[400px] fade-in">
+    <div class="card-paper p-5 sm:p-6">
+      <div class="card-band-inner" id="cardBandTop"></div>
 
-                <!-- Copyright vs Copyleft & CCL -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-                    <div class="bg-stone-800 text-white rounded-2xl p-6 shadow-sm">
-                        <h3 class="text-xl font-bold mb-4 flex justify-between items-center">
-                            <span>© 카피라이트</span> 
-                            <span class="text-stone-400 text-sm">VS</span> 
-                            <span>카피레프트 🄯</span>
-                        </h3>
-                        <div class="space-y-4 text-sm">
-                            <p><strong class="text-blue-300">카피라이트 (Copyright):</strong> 창작물을 만든 저작자가 자기 저작물에 대해 가지는 배타적이고 독점적인 법적 권리입니다.</p>
-                            <div class="w-full h-px bg-stone-700"></div>
-                            <p><strong class="text-green-300">카피레프트 (Copyleft):</strong> 독점적인 저작권에 반대하여, 저작권을 기반으로 한 정보의 자유로운 <span class="bg-stone-700 px-1 text-white">공유와 2차 창작을 권장</span>하는 운동입니다.</p>
-                        </div>
-                    </div>
+      <div id="cardArt" class="mt-4"></div>
 
-                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-stone-200">
-                        <h3 class="text-xl font-bold text-stone-800 mb-4">크리에이티브 커먼즈 (CCL) 조건</h3>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="bg-stone-50 p-3 rounded-lg text-center cursor-pointer hover:bg-amber-50 hover:border-amber-200 border border-transparent transition-colors" onclick="alert('저작자 표시 (Attribution): 저작물을 사용할 때 원저작자의 이름이나 출처를 반드시 표기해야 합니다.')">
-                                <div class="text-2xl mb-1">👤</div>
-                                <div class="font-bold text-stone-700">BY</div>
-                                <div class="text-xs text-stone-500">저작자 표시</div>
-                            </div>
-                            <div class="bg-stone-50 p-3 rounded-lg text-center cursor-pointer hover:bg-amber-50 hover:border-amber-200 border border-transparent transition-colors" onclick="alert('비영리 (Non-Commercial): 저작물을 영리(상업적) 목적으로 사용하여 수익을 창출할 수 없습니다.')">
-                                <div class="text-2xl mb-1">🚫💰</div>
-                                <div class="font-bold text-stone-700">NC</div>
-                                <div class="text-xs text-stone-500">비영리</div>
-                            </div>
-                            <div class="bg-stone-50 p-3 rounded-lg text-center cursor-pointer hover:bg-amber-50 hover:border-amber-200 border border-transparent transition-colors" onclick="alert('변경 금지 (No Derivatives): 저작물의 내용을 수정하거나 2차적 저작물을 작성할 수 없습니다.')">
-                                <div class="text-2xl mb-1">🚷</div>
-                                <div class="font-bold text-stone-700">ND</div>
-                                <div class="text-xs text-stone-500">변경 금지</div>
-                            </div>
-                            <div class="bg-stone-50 p-3 rounded-lg text-center cursor-pointer hover:bg-amber-50 hover:border-amber-200 border border-transparent transition-colors" onclick="alert('동일조건 변경 허락 (Share Alike): 2차적 저작물을 만들 수 있지만, 배포할 때는 반드시 원본과 동일한 라이선스를 적용해야 합니다.')">
-                                <div class="text-2xl mb-1">🔄</div>
-                                <div class="font-bold text-stone-700">SA</div>
-                                <div class="text-xs text-stone-500">동일조건 변경 허락</div>
-                            </div>
-                        </div>
-                        <p class="text-xs text-center text-stone-400 mt-4">아이콘을 클릭하여 상세 설명을 확인하세요.</p>
-                    </div>
-                </div>
-            </section>
+      <input id="cardTitle" class="card-title mt-4" value="빛나는 연화문" maxlength="24" aria-label="작품 제목" />
 
-            <!-- TAB 2: 자료와 정보 -->
-            <section id="tab-data" class="tab-content">
-                <header class="mb-8">
-                    <span class="text-accent-600 font-bold tracking-wider text-sm uppercase">Section 2</span>
-                    <h2 class="text-3xl md:text-4xl font-extrabold text-stone-800 mt-2 mb-4">자료와 정보 표현</h2>
-                    <p class="text-lg text-stone-600 leading-relaxed">
-                        컴퓨터가 세상을 이해하는 방식을 배웁니다. 가공되지 않은 자료(Data)가 어떻게 유용한 정보(Information)로 바뀌는지, 연속적인 아날로그 자연이 어떻게 0과 1의 디지털로 변환되는지 각 단계를 직접 조작하며 확인해 봅니다.
-                    </p>
-                </header>
+      <div class="mt-1.5 flex items-center justify-center gap-2.5">
+        <span class="h-px w-9 bg-[#DCCBA6]"></span>
+        <div id="cardDots" class="flex gap-1.5"></div>
+        <span class="h-px w-9 bg-[#DCCBA6]"></span>
+      </div>
 
-                <!-- Data vs Info -->
-                <div class="flex flex-col md:flex-row gap-4 items-center justify-center bg-white p-8 rounded-2xl shadow-sm border border-stone-200 mb-8">
-                    <div class="text-center p-4">
-                        <div class="text-4xl mb-2">🌡️</div>
-                        <h4 class="font-bold text-stone-800">자료 (Data)</h4>
-                        <p class="text-sm text-stone-500 mt-2">원시적인 값이나 사실<br>(예: 25도, 28도, 30도)</p>
-                    </div>
-                    <div class="text-2xl text-accent-500 animate-pulse hidden md:block">➡</div>
-                    <div class="text-2xl text-accent-500 animate-pulse md:hidden">⬇</div>
-                    <div class="text-center bg-stone-100 p-4 rounded-xl border border-stone-200 border-dashed">
-                        <div class="text-3xl mb-2">⚙️</div>
-                        <p class="text-sm font-bold text-stone-600">처리 (Processing)</p>
-                        <p class="text-xs text-stone-400 mt-1">알고리즘, 분석, 해석</p>
-                    </div>
-                    <div class="text-2xl text-accent-500 animate-pulse hidden md:block">➡</div>
-                    <div class="text-2xl text-accent-500 animate-pulse md:hidden">⬇</div>
-                    <div class="text-center p-4">
-                        <div class="text-4xl mb-2">💡</div>
-                        <h4 class="font-bold text-stone-800">정보 (Information)</h4>
-                        <p class="text-sm text-stone-500 mt-2">상황에 맞게 가치 부여된 지식<br>(예: "여름 대비 에어컨 가동 필요")</p>
-                    </div>
-                </div>
+      <p id="cardMeta" class="mt-2.5 text-center text-[11px] tracking-[0.06em] text-[#7A6A52]"></p>
 
-                <!-- Analog to Digital Interactive Flow -->
-                <div class="bg-white rounded-2xl shadow-sm border border-stone-200 p-6 mb-8">
-                    <h3 class="text-xl font-bold text-stone-800 mb-6 flex items-center"><span class="mr-2">🎙️</span> 아날로그의 디지털 변환 과정</h3>
-                    
-                    <div class="relative">
-                        <!-- Progress Line -->
-                        <div class="absolute top-1/2 left-0 w-full h-1 bg-stone-200 -translate-y-1/2 z-0 hidden md:block"></div>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 relative z-10">
-                            <!-- Step 1 -->
-                            <div class="bg-white border-2 border-accent-500 rounded-xl p-5 text-center transition-all cursor-pointer hover:shadow-md step-card" id="step1" onclick="showStep(1)">
-                                <div class="w-8 h-8 rounded-full bg-accent-500 text-white font-bold flex items-center justify-center mx-auto mb-3">1</div>
-                                <h4 class="font-bold text-lg">표본화 (Sampling)</h4>
-                                <p class="text-xs text-stone-500 mt-2">시간 간격으로 측정하기</p>
-                            </div>
-                            <!-- Step 2 -->
-                            <div class="bg-white border-2 border-stone-200 rounded-xl p-5 text-center transition-all cursor-pointer hover:shadow-md step-card opacity-60" id="step2" onclick="showStep(2)">
-                                <div class="w-8 h-8 rounded-full bg-stone-300 text-stone-600 font-bold flex items-center justify-center mx-auto mb-3">2</div>
-                                <h4 class="font-bold text-lg">양자화 (Quantization)</h4>
-                                <p class="text-xs text-stone-500 mt-2">유한한 단계로 근사화하기</p>
-                            </div>
-                            <!-- Step 3 -->
-                            <div class="bg-white border-2 border-stone-200 rounded-xl p-5 text-center transition-all cursor-pointer hover:shadow-md step-card opacity-60" id="step3" onclick="showStep(3)">
-                                <div class="w-8 h-8 rounded-full bg-stone-300 text-stone-600 font-bold flex items-center justify-center mx-auto mb-3">3</div>
-                                <h4 class="font-bold text-lg">부호화 (Encoding)</h4>
-                                <p class="text-xs text-stone-500 mt-2">0과 1의 이진 코드로 변환</p>
-                            </div>
-                        </div>
-                    </div>
+      <div class="mt-4 flex justify-center">
+        <div class="seal">丹</div>
+      </div>
 
-                    <!-- Step Details -->
-                    <div class="mt-8 bg-stone-50 rounded-xl p-6 border border-stone-200 min-h-[120px] flex items-center">
-                        <p id="step-description" class="text-stone-700 leading-relaxed text-center w-full">
-                            <strong>표본화(Sampling):</strong> 부드럽게 이어지는 연속적인 아날로그 신호(파동)를 일정한 시간 간격으로 끊어서 측정하고 그 값을 추출하는 첫 번째 단계입니다. 간격이 촘촘할수록 원음에 가까워집니다.
-                        </p>
-                    </div>
-                </div>
+      <div class="card-band-inner mt-4" id="cardBandBottom"></div>
+    </div>
 
-                <!-- Graphic Representation: Bitmap vs Vector -->
-                <div class="mb-8">
-                    <h3 class="text-xl font-bold text-stone-800 mb-4 flex items-center"><span class="mr-2">🖼️</span> 그래픽 정보: 비트맵 vs 벡터</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Bitmap -->
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-stone-200 flex flex-col items-center justify-center cursor-pointer group">
-                            <h4 class="font-bold text-lg mb-2">비트맵 (Bitmap)</h4>
-                            <p class="text-xs text-stone-500 mb-4 text-center">수많은 픽셀(점)의 배열. 사실적인 사진에 적합.</p>
-                            <div class="w-24 h-24 bg-blue-100 flex items-center justify-center rounded overflow-hidden relative">
-                                <div class="text-4xl transition-all duration-500 group-hover:scale-[3] group-hover:opacity-80" style="image-rendering: pixelated;">🍎</div>
-                                <!-- CSS grid overlay to simulate pixels on hover -->
-                                <div class="absolute inset-0 grid grid-cols-6 grid-rows-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-                                    <!-- Generating grid cells purely with CSS for pixel effect -->
-                                    <div class="border border-black/10"></div><div class="border border-black/10"></div><div class="border border-black/10"></div><div class="border border-black/10"></div><div class="border border-black/10"></div><div class="border border-black/10"></div>
-                                    <div class="border border-black/10"></div><div class="border border-black/10"></div><div class="border border-black/10"></div><div class="border border-black/10"></div><div class="border border-black/10"></div><div class="border border-black/10"></div>
-                                    <div class="border border-black/10"></div><div class="border border-black/10"></div><div class="border border-black/10"></div><div class="border border-black/10"></div><div class="border border-black/10"></div><div class="border border-black/10"></div>
-                                </div>
-                            </div>
-                            <p class="text-xs text-red-500 mt-4 font-bold opacity-0 group-hover:opacity-100 transition-opacity">확대 시 계단 현상(모자이크) 발생!</p>
-                        </div>
-                        
-                        <!-- Vector -->
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-stone-200 flex flex-col items-center justify-center cursor-pointer group">
-                            <h4 class="font-bold text-lg mb-2">벡터 (Vector)</h4>
-                            <p class="text-xs text-stone-500 mb-4 text-center">수학적 공식과 기하학적 객체. 로고 디자인에 적합.</p>
-                            <div class="w-24 h-24 bg-green-100 flex items-center justify-center rounded overflow-hidden">
-                                <div class="text-4xl transition-all duration-500 group-hover:scale-[3]">📐</div>
-                            </div>
-                            <p class="text-xs text-green-600 mt-4 font-bold opacity-0 group-hover:opacity-100 transition-opacity">아무리 확대해도 선명함 유지!</p>
-                        </div>
-                    </div>
-                </div>
+    <div class="mt-3 flex gap-2">
+      <button type="button" id="btnSavePng" class="btn btn-primary flex-1">PNG로 저장</button>
+      <button type="button" id="btnCloseCard" class="btn btn-ghost flex-1">닫기</button>
+    </div>
+  </div>
+</div>
 
-            </section>
+<script>
+(function () {
+  'use strict';
 
-            <!-- TAB 3: 압축과 자료구조 -->
-            <section id="tab-structure" class="tab-content">
-                <header class="mb-8">
-                    <span class="text-accent-600 font-bold tracking-wider text-sm uppercase">Section 3</span>
-                    <h2 class="text-3xl md:text-4xl font-extrabold text-stone-800 mt-2 mb-4">데이터 압축과 자료구조</h2>
-                    <p class="text-lg text-stone-600 leading-relaxed">
-                        한정된 컴퓨터 자원을 효율적으로 관리하는 원리를 학습합니다. 데이터의 용량을 줄이는 압축 알고리즘을 비교하고, 작업을 순서대로 처리하기 위한 선형 자료구조인 큐(Queue)와 스택(Stack)을 시뮬레이터를 통해 직접 조작해 봅니다.
-                    </p>
-                </header>
+  var NS = 'http://www.w3.org/2000/svg';
+  var RAD = Math.PI / 180;
+  var AUTHOR = '강쌤';
 
-                <!-- Compression Section -->
-                <div class="bg-stone-800 text-white rounded-2xl p-6 shadow-sm mb-8">
-                    <h3 class="text-xl font-bold mb-6 flex items-center"><span class="mr-2">🗜️</span> 무손실 압축 알고리즘 (원본 100% 복원 가능)</h3>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- RLE -->
-                        <div class="bg-stone-700 p-5 rounded-xl border border-stone-600">
-                            <h4 class="font-bold text-lg text-blue-300 mb-2">런길이 압축 (RLE)</h4>
-                            <p class="text-sm text-stone-300 mb-4">동일한 문자가 연속해서 나타나는 개수를 세어 숫자로 묶어 표현합니다. 데이터 연속성이 높을 때 매우 효과적입니다.</p>
-                            <div class="bg-stone-900 p-3 rounded font-mono text-sm overflow-x-auto whitespace-nowrap">
-                                <span class="text-red-400">AAAAA</span><span class="text-green-400">BB</span><span class="text-yellow-400">CCCCCCC</span><br>
-                                <span class="text-stone-500">↓ 압축 변환 ↓</span><br>
-                                <span class="text-white">A<span class="text-red-400">5</span> B<span class="text-green-400">2</span> C<span class="text-yellow-400">7</span></span>
-                            </div>
-                        </div>
+  /* =========================================================
+     오방색 팔레트
+     ========================================================= */
+  var PALETTE = {
+    cheong:  { hanja: '靑',  name: '청',   hex: '#1F5C99', group: 'jeong', meaning: '동쪽 · 봄 · 나무를 상징하는 오방정색' },
+    jeok:    { hanja: '赤',  name: '적',   hex: '#B23A2E', group: 'jeong', meaning: '남쪽 · 여름 · 불을 상징하는 오방정색' },
+    hwang:   { hanja: '黃',  name: '황',   hex: '#D9A63C', group: 'jeong', meaning: '중앙 · 땅을 상징하며 가장 존귀하게 여긴 색' },
+    baek:    { hanja: '白',  name: '백',   hex: '#FAF5E8', group: 'jeong', meaning: '서쪽 · 가을 · 쇠를 상징하는 오방정색' },
+    heuk:    { hanja: '黑',  name: '흑',   hex: '#2C2A27', group: 'jeong', meaning: '북쪽 · 겨울 · 물을 상징하는 오방정색' },
+    nok:     { hanja: '綠',  name: '녹',   hex: '#3E7D5B', group: 'gan',   meaning: '청과 황 사이 — 새싹과 생명의 빛' },
+    hong:    { hanja: '紅',  name: '홍',   hex: '#C9635C', group: 'gan',   meaning: '적과 백 사이 — 따뜻하게 번지는 빛' },
+    byeok:   { hanja: '碧',  name: '벽',   hex: '#2E8B85', group: 'gan',   meaning: '청과 백 사이 — 맑은 물빛' },
+    yuhwang: { hanja: '硫黃', name: '유황', hex: '#E2C05C', group: 'gan',   meaning: '황과 흑 사이 — 햇살 같은 연한 노랑' },
+    ja:      { hanja: '紫',  name: '자',   hex: '#6B4C88', group: 'gan',   meaning: '적과 청 사이 — 고귀함의 빛' }
+  };
+  var PALETTE_ORDER = ['cheong', 'jeok', 'hwang', 'baek', 'heuk', 'nok', 'hong', 'byeok', 'yuhwang', 'ja'];
 
-                        <!-- Huffman -->
-                        <div class="bg-stone-700 p-5 rounded-xl border border-stone-600">
-                            <h4 class="font-bold text-lg text-green-300 mb-2">허프만 코딩</h4>
-                            <p class="text-sm text-stone-300 mb-4">문자의 출현 빈도를 조사하여, '자주 나오는' 문자는 짧은 코드로, '적게 나오는' 문자는 긴 코드로 할당하여 전체 용량을 줄입니다.</p>
-                            <div class="bg-stone-900 p-3 rounded text-sm flex items-center justify-around">
-                                <div class="text-center">
-                                    <span class="text-2xl">A</span><br>
-                                    <span class="text-xs text-stone-400">자주 등장 (빈도 높음)</span><br>
-                                    <span class="font-mono text-green-400 text-lg">0</span> <span class="text-xs">(짧은 비트)</span>
-                                </div>
-                                <div class="text-stone-500">vs</div>
-                                <div class="text-center">
-                                    <span class="text-2xl">Z</span><br>
-                                    <span class="text-xs text-stone-400">희귀 등장 (빈도 낮음)</span><br>
-                                    <span class="font-mono text-red-400 text-lg">1101</span> <span class="text-xs">(긴 비트)</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+  /* =========================================================
+     기하 도우미
+     ========================================================= */
+  function n(v) { return Math.round(v * 100) / 100; }
+  function pol(cx, cy, r, a) {
+    return [n(cx + r * Math.cos(a * RAD)), n(cy + r * Math.sin(a * RAD))];
+  }
+  function pstr(cx, cy, r, a) {
+    var p = pol(cx, cy, r, a);
+    return p[0] + ',' + p[1];
+  }
+  function circlePath(cx, cy, r) {
+    return 'M' + n(cx - r) + ',' + n(cy) +
+           ' a' + r + ',' + r + ' 0 1 0 ' + (2 * r) + ',0' +
+           ' a' + r + ',' + r + ' 0 1 0 ' + (-2 * r) + ',0 Z';
+  }
+  function petal(cx, cy, a, r0, r1, h) {
+    function p(r, da) { return pstr(cx, cy, r, a + da); }
+    var d1 = r0 + (r1 - r0) * 0.42;
+    var d2 = r1 - (r1 - r0) * 0.20;
+    return 'M' + p(r0, -h) +
+           ' C' + p(d1, -h * 1.45) + ' ' + p(d2, -h * 0.54) + ' ' + p(r1, 0) +
+           ' C' + p(d2, h * 0.54) + ' ' + p(d1, h * 1.45) + ' ' + p(r0, h) + ' Z';
+  }
+  function annulus(cx, cy, ro, ri, a0, a1) {
+    var large = (a1 - a0) > 180 ? 1 : 0;
+    return 'M' + pstr(cx, cy, ro, a0) +
+           ' A' + ro + ',' + ro + ' 0 ' + large + ' 1 ' + pstr(cx, cy, ro, a1) +
+           ' L' + pstr(cx, cy, ri, a1) +
+           ' A' + ri + ',' + ri + ' 0 ' + large + ' 0 ' + pstr(cx, cy, ri, a0) + ' Z';
+  }
 
-                <!-- Data Structures Simulator -->
-                <div class="mb-8">
-                    <h3 class="text-2xl font-bold text-stone-800 mb-2 flex items-center"><span class="mr-2">🧱</span> 선형 자료구조 시뮬레이터</h3>
-                    <p class="text-stone-600 mb-6">버튼을 클릭하여 데이터가 어떻게 들어가고 나가는지 확인하세요.</p>
+  /* =========================================================
+     문양 ① 연화문 (蓮花文)
+     화심 1 + 안쪽 꽃잎 8 + 바깥 꽃잎 8 + 테두리 16 = 33개 영역
+     ========================================================= */
+  function buildLotus() {
+    var cx = 400, cy = 400;
+    var paths = [];
 
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        
-                        <!-- QUEUE -->
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-stone-200">
-                            <div class="flex justify-between items-center mb-4">
-                                <div>
-                                    <h4 class="font-bold text-xl text-blue-600">큐 (Queue)</h4>
-                                    <p class="text-xs text-stone-500 font-bold mt-1">선입선출 (FIFO - First In First Out)</p>
-                                </div>
-                                <div class="text-right text-xs text-stone-400">예: 매표소 대기 줄, 인쇄 대기열</div>
-                            </div>
-                            
-                            <div class="flex space-x-2 mb-6">
-                                <button onclick="enqueue()" class="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors font-medium text-sm">입력 (Enqueue)</button>
-                                <button onclick="dequeue()" class="px-4 py-2 bg-stone-100 text-stone-700 rounded-lg hover:bg-stone-200 transition-colors font-medium text-sm">출력 (Dequeue)</button>
-                            </div>
+    // 그리는 순서: 테두리 → 바깥 꽃잎 → 안쪽 꽃잎 → 화심 (안쪽이 위로 오도록)
+    for (var k = 0; k < 16; k++) {
+      var a0 = -90 + k * 22.5 + 0.9;
+      paths.push({
+        id: 'lotus-rim-' + k,
+        label: '테두리 무늬 ' + (k + 1) + ' / 16',
+        d: annulus(cx, cy, 378, 306, a0, a0 + 20.7)
+      });
+    }
+    for (var j = 0; j < 8; j++) {
+      paths.push({
+        id: 'lotus-out-' + j,
+        label: '바깥 꽃잎 ' + (j + 1) + ' / 8',
+        d: petal(cx, cy, -90 + 22.5 + j * 45, 150, 298, 19)
+      });
+    }
+    for (var i = 0; i < 8; i++) {
+      paths.push({
+        id: 'lotus-in-' + i,
+        label: '안쪽 꽃잎 ' + (i + 1) + ' / 8',
+        d: petal(cx, cy, -90 + i * 45, 52, 214, 20)
+      });
+    }
+    paths.push({ id: 'lotus-core', label: '화심 — 꽃의 중심', d: circlePath(cx, cy, 62) });
 
-                            <!-- Queue Visualization Area -->
-                            <div class="relative w-full h-24 bg-stone-50 border-2 border-dashed border-stone-300 rounded-xl flex items-center px-2 overflow-hidden">
-                                <div class="absolute right-2 text-xs font-bold text-stone-400">입구 ➡</div>
-                                <div class="absolute left-2 text-xs font-bold text-stone-400">⬅ 출구</div>
-                                <!-- Items will be injected here -->
-                                <div id="queue-container" class="flex flex-row-reverse items-center justify-end w-full h-full gap-2 px-10">
-                                    <!-- Empty state handled by JS -->
-                                </div>
-                            </div>
-                        </div>
+    var decor = [
+      '<circle cx="400" cy="400" r="391" fill="#FCF6E7"/>',
+      '<circle cx="400" cy="400" r="391" fill="none" stroke="#DECDA8" stroke-width="1.6"/>',
+      '<circle cx="400" cy="400" r="383" fill="none" stroke="#C9AE7E" stroke-width="0.9" stroke-dasharray="1 7" stroke-linecap="round"/>',
+      '<circle cx="400" cy="400" r="302" fill="none" stroke="#C9AE7E" stroke-width="1.1"/>'
+    ];
 
-                        <!-- STACK -->
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-stone-200">
-                            <div class="flex justify-between items-center mb-4">
-                                <div>
-                                    <h4 class="font-bold text-xl text-purple-600">스택 (Stack)</h4>
-                                    <p class="text-xs text-stone-500 font-bold mt-1">후입선출 (LIFO - Last In First Out)</p>
-                                </div>
-                                <div class="text-right text-xs text-stone-400">예: 웹브라우저 뒤로가기, 실행 취소</div>
-                            </div>
-                            
-                            <div class="flex space-x-2 mb-6">
-                                <button onclick="pushStack()" class="px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors font-medium text-sm">입력 (Push)</button>
-                                <button onclick="popStack()" class="px-4 py-2 bg-stone-100 text-stone-700 rounded-lg hover:bg-stone-200 transition-colors font-medium text-sm">출력 (Pop)</button>
-                            </div>
+    return { decor: decor, groups: [{ transform: '', paths: paths }] };
+  }
 
-                            <!-- Stack Visualization Area -->
-                            <div class="relative w-32 mx-auto h-48 bg-stone-50 border-x-4 border-b-4 border-stone-300 rounded-b-xl flex flex-col justify-end p-2 overflow-hidden">
-                                <div class="absolute top-2 left-0 w-full text-center text-xs font-bold text-stone-400 z-0">⬇ 입/출구 ⬆</div>
-                                <!-- Items will be injected here -->
-                                <div id="stack-container" class="flex flex-col-reverse items-center w-full gap-2 z-10">
-                                    <!-- Empty state handled by JS -->
-                                </div>
-                            </div>
-                        </div>
+  /* =========================================================
+     문양 ② 운문 (雲文)
+     구름 7송이 × (마루 3 + 띠 3) = 42개 영역
+     ========================================================= */
+  var CLOUDS = [
+    { x: 400, y: 398, s: 1.00, rot: 0 },
+    { x: 206, y: 196, s: 0.54, rot: -14 },
+    { x: 594, y: 196, s: 0.54, rot: 14 },
+    { x: 188, y: 588, s: 0.50, rot: 10 },
+    { x: 612, y: 588, s: 0.50, rot: -10 },
+    { x: 400, y: 130, s: 0.38, rot: 0 },
+    { x: 400, y: 674, s: 0.38, rot: 0 }
+  ];
 
-                    </div>
-                </div>
-            </section>
+  function buildCloud() {
+    var groups = [];
+    CLOUDS.forEach(function (c, ci) {
+      var bandL = 'M-130,-30 L-58,-30 L-58,22 L-130,22 A26,26 0 0 1 -130,-30 Z';
+      var bandM = 'M-58,-30 L58,-30 L58,22 L-58,22 Z';
+      var bandR = 'M58,-30 L130,-30 A26,26 0 0 1 130,22 L58,22 Z';
 
-            <!-- Footer -->
-            <footer class="mt-12 text-center pb-8 border-t border-stone-200 pt-8">
-                <p class="text-stone-400 text-sm">컴퓨터과학 기초 마스터 | 단일 페이지 인터랙티브 웹 애플리케이션</p>
-            </footer>
-        </div>
-    </main>
+      var paths = [
+        { id: 'cloud-' + ci + '-lobeL', label: '구름 왼쪽 마루 ' + (ci + 1), d: 'M-160,-30 A45,45 0 0 1 -70,-30 Z' },
+        { id: 'cloud-' + ci + '-lobeC', label: '구름 가운데 마루 ' + (ci + 1), d: 'M-70,-30 A70,70 0 0 1 70,-30 Z' },
+        { id: 'cloud-' + ci + '-lobeR', label: '구름 오른쪽 마루 ' + (ci + 1), d: 'M70,-30 A45,45 0 0 1 160,-30 Z' },
+        { id: 'cloud-' + ci + '-bandL', label: '구름 왼쪽 띠 ' + (ci + 1), d: bandL },
+        { id: 'cloud-' + ci + '-bandM', label: '구름 가운데 띠 ' + (ci + 1), d: bandM },
+        { id: 'cloud-' + ci + '-bandR', label: '구름 오른쪽 띠 ' + (ci + 1), d: bandR }
+      ];
 
-    <!-- JavaScript Logic -->
-    <script>
-        // --- 1. Tab Navigation Logic ---
-        function switchTab(tabId) {
-            // Hide all contents
-            document.querySelectorAll('.tab-content').forEach(el => {
-                el.classList.remove('active');
-            });
-            // Show targeted content
-            document.getElementById(tabId).classList.add('active');
+      groups.push({
+        transform: 'translate(' + c.x + ' ' + c.y + ') rotate(' + c.rot + ') scale(' + c.s + ')',
+        paths: paths
+      });
+    });
 
-            // Update button styles
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('bg-stone-100', 'text-accent-600', 'font-bold');
-                btn.classList.add('text-stone-600');
-            });
-            const activeBtn = document.getElementById('btn-' + tabId);
-            activeBtn.classList.remove('text-stone-600');
-            activeBtn.classList.add('bg-stone-100', 'text-accent-600', 'font-bold');
-        }
+    var decor = [
+      '<rect x="24" y="24" width="752" height="752" rx="18" fill="#FCF6E7"/>',
+      '<rect x="24" y="24" width="752" height="752" rx="18" fill="none" stroke="#DECDA8" stroke-width="1.6"/>',
+      '<rect x="36" y="36" width="728" height="728" rx="12" fill="none" stroke="#C9AE7E" stroke-width="0.9" stroke-dasharray="1 7" stroke-linecap="round"/>'
+    ];
 
-        // Initialize first tab button style
-        document.getElementById('btn-tab-ethics').classList.add('bg-stone-100', 'text-accent-600', 'font-bold');
+    return { decor: decor, groups: groups };
+  }
 
-        // --- 2. Chart.js (Cyber Violence Doughnut Chart) ---
-        document.addEventListener('DOMContentLoaded', function() {
-            const ctx = document.getElementById('violenceChart').getContext('2d');
-            
-            // Data mapped from the source report
-            const data = {
-                labels: ['명예훼손', '스토킹', '성폭력', '신상정보 유출', '따돌림', '갈취', '강요'],
-                datasets: [{
-                    data: [15, 15, 15, 15, 15, 12, 13], // Equal arbitrary distribution for visual balance
-                    backgroundColor: [
-                        '#ef4444', // red
-                        '#f97316', // orange
-                        '#f59e0b', // amber
-                        '#eab308', // yellow
-                        '#3b82f6', // blue
-                        '#8b5cf6', // indigo
-                        '#a855f7'  // purple
-                    ],
-                    borderWidth: 0,
-                    hoverOffset: 10
-                }]
-            };
+  var patterns = {
+    lotus: { name: '연화문', hanja: '蓮花文', build: buildLotus, defaultTitle: '빛나는 연화문', question: '연화문 (蓮花文)' },
+    cloud: { name: '운문', hanja: '雲文', build: buildCloud, defaultTitle: '상서로운 구름', question: '운문 (雲文)' }
+  };
 
-            const descriptions = {
-                '명예훼손': '사실 여부와 상관없이 타인을 비방하는 글을 불특정 다수가 볼 수 있게 올리는 행위.',
-                '스토킹': '원치 않음에도 반복적으로 공포감, 불안감을 유발하는 이메일이나 문자를 보내거나 흔적을 남기는 행위.',
-                '성폭력': '특정인에게 성적 불쾌감을 느끼게 하는 내용, 영상, 사진을 정보통신망을 통해 유포하는 행위.',
-                '신상정보 유출': '개인의 사생활이나 이름, 거주지 등의 신상정보를 타인 동의 없이 유포하는 행위.',
-                '따돌림': '인터넷 대화방이나 메신저 등에서 상대방을 무시하거나 소외시키고 따돌리는 행위.',
-                '갈취': '인터넷에서 사이버(게임) 머니, 스마트폰 데이터 등의 자산을 강제로 빼앗는 행위.',
-                '강요': '인터넷이나 휴대전화를 통해 원치 않는 말, 행동을 하도록 강요하거나 심부름을 시키는 행위.'
-            };
+  /* =========================================================
+     상태
+     ========================================================= */
+  var state = {
+    pattern: 'lotus',
+    brush: 'cheong',
+    fills: { lotus: {}, cloud: {} },
+    history: []
+  };
+  var timers = [];
 
-            const myChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: data,
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'right',
-                            labels: {
-                                font: { family: "'Pretendard', sans-serif" },
-                                padding: 15
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return ' 클릭하여 설명 보기';
-                                }
-                            }
-                        }
-                    },
-                    onClick: (event, elements) => {
-                        if (elements.length > 0) {
-                            const index = elements[0].index;
-                            const label = data.labels[index];
-                            const desc = descriptions[label];
-                            const color = data.datasets[0].backgroundColor[index];
-                            
-                            const infoDiv = document.getElementById('violence-info');
-                            infoDiv.innerHTML = `
-                                <div class="flex items-center mb-3">
-                                    <div class="w-4 h-4 rounded-full mr-2" style="background-color: ${color}"></div>
-                                    <h4 class="text-xl font-bold text-stone-800">사이버 ${label}</h4>
-                                </div>
-                                <p class="text-stone-600 leading-relaxed">${desc}</p>
-                            `;
-                            // Add a little pop animation
-                            infoDiv.style.animation = 'none';
-                            infoDiv.offsetHeight; // trigger reflow
-                            infoDiv.style.animation = 'fadeIn 0.3s ease-out forwards';
-                        }
-                    }
-                }
-            });
-        });
+  /* =========================================================
+     화면 그리기
+     ========================================================= */
+  var svg = document.getElementById('patternSvg');
+  var tip = document.getElementById('tooltip');
 
-        // --- 3. Analog to Digital Step Logic ---
-        const adSteps = {
-            1: {
-                title: "표본화(Sampling)",
-                desc: "부드럽게 이어지는 연속적인 아날로그 신호(파동)를 일정한 시간 간격으로 끊어서 측정하고 그 값을 추출하는 첫 번째 단계입니다. 간격이 촘촘할수록 원음에 가까워집니다."
-            },
-            2: {
-                title: "양자화(Quantization)",
-                desc: "추출된 샘플들의 무한한 값 범위를, 우리가 정해놓은 특정한 수준의 유한한 디지털 값(단계)으로 근사화하여 맞추어 제한하는 핵심 과정입니다."
-            },
-            3: {
-                title: "부호화(Encoding)",
-                desc: "양자화된 값을 컴퓨터가 실제로 처리하고 이해할 수 있도록 0과 1로 이루어진 이진 코드(Binary Code)로 변환하는 최종 단계입니다."
-            }
-        };
+  function setFill(el, hex) {
+    if (hex) {
+      el.setAttribute('fill', hex);
+      el.classList.add('filled');
+    } else {
+      el.setAttribute('fill', '#EFE6D1');
+      el.classList.remove('filled');
+    }
+  }
 
-        function showStep(stepNum) {
-            // Reset all styles
-            for(let i=1; i<=3; i++) {
-                const el = document.getElementById('step'+i);
-                el.classList.remove('border-accent-500');
-                el.classList.add('border-stone-200', 'opacity-60');
-                el.children[0].classList.remove('bg-accent-500', 'text-white');
-                el.children[0].classList.add('bg-stone-300', 'text-stone-600');
-            }
+  function renderPattern() {
+    var data = patterns[state.pattern].build();
+    svg.innerHTML = data.decor.join('');
 
-            // Highlight selected
-            const activeEl = document.getElementById('step'+stepNum);
-            activeEl.classList.remove('border-stone-200', 'opacity-60');
-            activeEl.classList.add('border-accent-500');
-            activeEl.children[0].classList.remove('bg-stone-300', 'text-stone-600');
-            activeEl.children[0].classList.add('bg-accent-500', 'text-white');
+    data.groups.forEach(function (g) {
+      var gg = document.createElementNS(NS, 'g');
+      if (g.transform) gg.setAttribute('transform', g.transform);
+      g.paths.forEach(function (p) {
+        var el = document.createElementNS(NS, 'path');
+        el.setAttribute('d', p.d);
+        el.setAttribute('class', 'region');
+        el.setAttribute('data-id', p.id);
+        el.setAttribute('tabindex', '0');
+        el.setAttribute('role', 'button');
+        el.setAttribute('aria-label', p.label + ' — 눌러서 칠하기');
+        setFill(el, state.fills[state.pattern][p.id]);
+        gg.appendChild(el);
+      });
+      svg.appendChild(gg);
+    });
 
-            // Update text
-            document.getElementById('step-description').innerHTML = `<strong>${adSteps[stepNum].title}:</strong> ${adSteps[stepNum].desc}`;
-        }
+    updateStatus();
+  }
 
-        // --- 4. Data Structures Simulator Logic ---
-        
-        // State
-        let queueData = [];
-        let stackData = [];
-        let itemCounter = 1;
-        const colors = ['bg-blue-500', 'bg-purple-500', 'bg-green-500', 'bg-red-500', 'bg-amber-500'];
+  function regionEl(id) {
+    return svg.querySelector('.region[data-id="' + id + '"]');
+  }
 
-        // Queue Functions (FIFO)
-        function enqueue() {
-            if (queueData.length >= 5) {
-                alert("큐가 가득 찼습니다! (Max 5)");
-                return;
-            }
-            const newItem = { id: itemCounter++, color: colors[itemCounter % colors.length] };
-            queueData.unshift(newItem); // Add to beginning of array (visually right side in row-reverse)
-            renderQueue();
-        }
+  function updateStatus() {
+    var els = svg.querySelectorAll('.region');
+    var total = els.length;
+    var store = state.fills[state.pattern];
+    var filled = 0;
+    Array.prototype.forEach.call(els, function (el) {
+      if (store[el.getAttribute('data-id')]) filled++;
+    });
+    document.getElementById('progressText').textContent = total
+      ? total + '개 영역 · ' + filled + '개 칠함'
+      : '';
+    document.getElementById('progressBar').style.width = total
+      ? (filled / total * 100) + '%'
+      : '0%';
+    document.getElementById('btnUndo').disabled = state.history.length === 0;
+    document.getElementById('btnReset').disabled = filled === 0;
+  }
 
-        function dequeue() {
-            if (queueData.length === 0) {
-                alert("큐가 비어있습니다!");
-                return;
-            }
-            queueData.pop(); // Remove from end of array (visually left side in row-reverse)
-            renderQueue();
-        }
+  /* =========================================================
+     팔레트 UI
+     ========================================================= */
+  function isLight(hex) {
+    var h = hex.replace('#', '');
+    var r = parseInt(h.slice(0, 2), 16), g = parseInt(h.slice(2, 4), 16), b = parseInt(h.slice(4, 6), 16);
+    return (0.299 * r + 0.587 * g + 0.114 * b) > 170;
+  }
 
-        function renderQueue() {
-            const container = document.getElementById('queue-container');
-            container.innerHTML = '';
-            
-            if (queueData.length === 0) {
-                container.innerHTML = '<span class="text-stone-300 font-bold text-sm w-full text-center">비어있음</span>';
-                return;
-            }
+  var swatchButtons = {};
 
-            queueData.forEach(item => {
-                const el = document.createElement('div');
-                el.className = `sim-block w-12 h-12 rounded-lg text-white font-bold flex items-center justify-center shadow-md flex-shrink-0 ${item.color}`;
-                el.innerText = item.id;
-                container.appendChild(el);
-            });
-        }
+  function buildPalette() {
+    PALETTE_ORDER.forEach(function (key) {
+      var p = PALETTE[key];
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'swatch';
+      btn.setAttribute('data-color', key);
+      btn.setAttribute('aria-pressed', key === state.brush ? 'true' : 'false');
+      btn.setAttribute('aria-label', p.name + ' ' + p.hanja + ' — ' + p.meaning);
+      btn.innerHTML =
+        '<span class="dot" style="background:' + p.hex + '"></span>' +
+        '<span class="sw-hanja">' + p.hanja + '</span>' +
+        '<span class="sw-name">' + p.name + '</span>';
 
-        // Stack Functions (LIFO)
-        function pushStack() {
-            if (stackData.length >= 4) {
-                alert("스택이 가득 찼습니다! (Max 4)");
-                return;
-            }
-            const newItem = { id: itemCounter++, color: colors[itemCounter % colors.length] };
-            stackData.push(newItem); // Add to end of array (visually top in col-reverse)
-            renderStack();
-        }
+      btn.addEventListener('click', function () { selectBrush(key); });
+      btn.addEventListener('mouseenter', function () { showTip(btn, p); });
+      btn.addEventListener('mouseleave', hideTip);
+      btn.addEventListener('focus', function () { showTip(btn, p); });
+      btn.addEventListener('blur', hideTip);
 
-        function popStack() {
-            if (stackData.length === 0) {
-                alert("스택이 비어있습니다!");
-                return;
-            }
-            stackData.pop(); // Remove from end of array (visually top in col-reverse)
-            renderStack();
-        }
+      (p.group === 'jeong'
+        ? document.getElementById('paletteJeong')
+        : document.getElementById('paletteGan')).appendChild(btn);
 
-        function renderStack() {
-            const container = document.getElementById('stack-container');
-            container.innerHTML = '';
-            
-            if (stackData.length === 0) {
-                container.innerHTML = '<span class="text-stone-300 font-bold text-sm w-full text-center mt-10">비어있음</span>';
-                return;
-            }
+      swatchButtons[key] = btn;
+    });
+  }
 
-            stackData.forEach(item => {
-                const el = document.createElement('div');
-                el.className = `sim-block w-24 h-8 rounded text-white font-bold flex items-center justify-center shadow-md ${item.color}`;
-                el.innerText = `Data ${item.id}`;
-                container.appendChild(el);
-            });
-        }
+  function showTip(btn, p) {
+    var r = btn.getBoundingClientRect();
+    tip.innerHTML = '<span class="tt-hanja">' + p.hanja + '</span> ' + p.name + ' — ' + p.meaning;
+    tip.style.left = (r.left + r.width / 2) + 'px';
+    tip.style.top = (r.top - 8) + 'px';
+    tip.classList.add('on');
+  }
+  function hideTip() { tip.classList.remove('on'); }
 
-        // Init initial renders
-        renderQueue();
-        renderStack();
+  function selectBrush(key) {
+    state.brush = key;
+    var p = PALETTE[key];
+    Object.keys(swatchButtons).forEach(function (k) {
+      swatchButtons[k].setAttribute('aria-pressed', k === key ? 'true' : 'false');
+    });
+    var dot = document.getElementById('brushDot');
+    dot.style.background = p.hex;
+    dot.textContent = p.hanja;
+    dot.style.color = isLight(p.hex) ? '#3B2F22' : '#FFF9EA';
+    dot.style.fontSize = p.hanja.length > 1 ? '15px' : '20px';
+    document.getElementById('brushName').textContent = p.name + ' ' + p.hanja;
+    document.getElementById('brushMeaning').textContent = p.meaning;
+  }
 
-    </script>
+  /* =========================================================
+     색칠 / 되돌리기 / 초기화
+     ========================================================= */
+  function pop(el) {
+    el.classList.remove('pop');
+    // 강제로 리플로우시켜 애니메이션 재시작
+    void el.getBoundingClientRect();
+    el.classList.add('pop');
+  }
+
+  function paint(el) {
+    var id = el.getAttribute('data-id');
+    var store = state.fills[state.pattern];
+    var next = PALETTE[state.brush].hex;
+    var prev = store[id] || null;
+
+    if (prev === next) { pop(el); return; }
+
+    store[id] = next;
+    setFill(el, next);
+    pop(el);
+    state.history.push({
+      pattern: state.pattern,
+      changes: [{ id: id, prev: prev, next: next }]
+    });
+    updateStatus();
+  }
+
+  function undo() {
+    var entry = state.history.pop();
+    if (!entry) return;
+
+    if (entry.pattern !== state.pattern) {
+      state.pattern = entry.pattern;
+      syncTabs();
+      renderPattern();
+    }
+
+    var store = state.fills[entry.pattern];
+    entry.changes.forEach(function (c) {
+      store[c.id] = c.prev;
+      var el = regionEl(c.id);
+      if (el) setFill(el, c.prev);
+    });
+    updateStatus();
+  }
+
+  function reset() {
+    var store = state.fills[state.pattern];
+    var changes = [];
+    Object.keys(store).forEach(function (id) {
+      if (store[id]) changes.push({ id: id, prev: store[id], next: null });
+    });
+    if (!changes.length) return;
+
+    changes.forEach(function (c) { store[c.id] = null; });
+    state.history.push({ pattern: state.pattern, changes: changes });
+    renderPattern();
+  }
+
+  /* =========================================================
+     전통 배색
+     ========================================================= */
+  function traditionalScheme(key) {
+    var HEX = {};
+    Object.keys(PALETTE).forEach(function (k) { HEX[k] = PALETTE[k].hex; });
+    var map = {};
+
+    if (key === 'lotus') {
+      map['lotus-core'] = HEX.hwang;
+      for (var i = 0; i < 8; i++) {
+        map['lotus-in-' + i] = (i % 2 === 0) ? HEX.jeok : HEX.baek;
+        map['lotus-out-' + i] = (i % 2 === 0) ? HEX.cheong : HEX.nok;
+      }
+      for (var k = 0; k < 16; k++) {
+        map['lotus-rim-' + k] = (k % 2 === 0) ? HEX.byeok : HEX.jeok;
+      }
+    } else {
+      CLOUDS.forEach(function (c, ci) {
+        var base = 'cloud-' + ci;
+        map[base + '-lobeL'] = HEX.baek;
+        map[base + '-lobeC'] = HEX.baek;
+        map[base + '-lobeR'] = HEX.baek;
+        map[base + '-bandL'] = HEX.cheong;
+        map[base + '-bandR'] = HEX.cheong;
+        map[base + '-bandM'] = (ci % 2 === 0) ? HEX.byeok : HEX.nok;
+      });
+    }
+    return map;
+  }
+
+  function applyTraditional() {
+    var map = traditionalScheme(state.pattern);
+    var store = state.fills[state.pattern];
+    var changes = [];
+
+    Object.keys(map).forEach(function (id) {
+      var prev = store[id] || null;
+      if (prev !== map[id]) changes.push({ id: id, prev: prev, next: map[id] });
+    });
+    if (!changes.length) return;
+
+    state.history.push({ pattern: state.pattern, changes: changes });
+
+    timers.forEach(clearTimeout);
+    timers = [];
+
+    changes.forEach(function (c, i) {
+      store[c.id] = c.next;
+      timers.push(setTimeout(function () {
+        var el = regionEl(c.id);
+        if (el) { setFill(el, c.next); pop(el); }
+      }, i * 22));
+    });
+    updateStatus();
+  }
+
+  /* =========================================================
+     카드 만들기
+     ========================================================= */
+  var modal = document.getElementById('cardModal');
+
+  function dateLabel(d) {
+    return d.getFullYear() + '년 ' + (d.getMonth() + 1) + '월 ' + d.getDate() + '일';
+  }
+  function dateKey(d) {
+    var m = ('0' + (d.getMonth() + 1)).slice(-2);
+    var day = ('0' + d.getDate()).slice(-2);
+    return d.getFullYear() + '-' + m + '-' + day;
+  }
+
+  function clonePatternSvg(extraClass) {
+    var clone = svg.cloneNode(true);
+    clone.removeAttribute('role');
+    clone.removeAttribute('aria-label');
+    clone.setAttribute('class', extraClass || 'block h-auto w-full');
+    Array.prototype.forEach.call(clone.querySelectorAll('.region'), function (el) {
+      el.removeAttribute('tabindex');
+      el.removeAttribute('role');
+      el.removeAttribute('aria-label');
+    });
+    return clone;
+  }
+
+  function paintDots(container) {
+    container.innerHTML = '';
+    PALETTE_ORDER.slice(0, 5).forEach(function (k) {
+      var s = document.createElement('span');
+      s.style.cssText = 'display:block;width:5px;height:5px;border-radius:999px;background:' + PALETTE[k].hex + ';box-shadow:0 0 0 1px rgba(90,70,40,.18)';
+      container.appendChild(s);
+    });
+  }
+
+  function paintBand(container) {
+    container.innerHTML = '';
+    PALETTE_ORDER.forEach(function (k) {
+      var s = document.createElement('span');
+      s.style.background = PALETTE[k].hex;
+      container.appendChild(s);
+    });
+  }
+
+  function openCard() {
+    var art = document.getElementById('cardArt');
+    art.innerHTML = '';
+    art.appendChild(clonePatternSvg('block h-auto w-full'));
+
+    var input = document.getElementById('cardTitle');
+    input.value = patterns[state.pattern].defaultTitle;
+
+    var dots = document.getElementById('cardDots');
+    paintDots(dots);
+    paintBand(document.getElementById('cardBandTop'));
+    paintBand(document.getElementById('cardBandBottom'));
+
+    document.getElementById('cardMeta').textContent = dateLabel(new Date()) + ' · ' + AUTHOR + ' 지음';
+
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    document.body.style.overflow = 'hidden';
+    setTimeout(function () { input.focus(); input.select(); }, 60);
+  }
+
+  function closeCard() {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    document.body.style.overflow = '';
+  }
+
+  function drawBand(ctx, x, y, w, h) {
+    var colors = PALETTE_ORDER.map(function (k) { return PALETTE[k].hex; });
+    var seg = w / colors.length;
+    colors.forEach(function (c, i) {
+      ctx.fillStyle = c;
+      ctx.fillRect(x + i * seg + (i === 0 ? 0 : 1), y, seg - 2, h);
+    });
+  }
+
+  function fitSize(ctx, text, maxWidth, start, weight, family) {
+    var size = start;
+    while (size > 24) {
+      ctx.font = weight + ' ' + size + 'px ' + family;
+      if (ctx.measureText(text).width <= maxWidth) break;
+      size -= 2;
+    }
+    return size;
+  }
+
+  function loadImage(src) {
+    return new Promise(function (resolve, reject) {
+      var img = new Image();
+      img.onload = function () { resolve(img); };
+      img.onerror = reject;
+      img.src = src;
+    });
+  }
+
+  async function downloadCard() {
+    var btn = document.getElementById('btnSavePng');
+    var oldText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = '만드는 중…';
+
+    try {
+      await document.fonts.ready;
+      try { await document.fonts.load('600 72px "Gowun Batang"'); } catch (e) { /* ignore */ }
+
+      var W = 1200, H = 1600;
+      var cv = document.createElement('canvas');
+      cv.width = W; cv.height = H;
+      var ctx = cv.getContext('2d');
+
+      // 한지 바탕
+      var paper = ctx.createLinearGradient(0, 0, 0, H);
+      paper.addColorStop(0, '#FDF8EC');
+      paper.addColorStop(0.55, '#FAF3E1');
+      paper.addColorStop(1, '#F3E8D0');
+      ctx.fillStyle = paper;
+      ctx.fillRect(0, 0, W, H);
+
+      // 종이 결
+      for (var i = 0; i < 2800; i++) {
+        var px = Math.random() * W, py = Math.random() * H;
+        ctx.fillStyle = 'rgba(140,110,65,' + (Math.random() * 0.05).toFixed(3) + ')';
+        ctx.fillRect(px, py, 1.4, 1.4);
+      }
+
+      // 액자
+      ctx.strokeStyle = '#AE8B52';
+      ctx.lineWidth = 2.5;
+      ctx.strokeRect(42, 42, W - 84, H - 84);
+      ctx.strokeStyle = 'rgba(174,139,82,0.55)';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(58, 58, W - 116, H - 116);
+
+      // 색동 띠
+      drawBand(ctx, 74, 74, W - 148, 13);
+      drawBand(ctx, 74, H - 87, W - 148, 13);
+
+      // 문양
+      var clone = clonePatternSvg();
+      clone.setAttribute('xmlns', NS);
+      clone.setAttribute('width', '800');
+      clone.setAttribute('height', '800');
+      var xml = new XMLSerializer().serializeToString(clone);
+      var img = await loadImage('data:image/svg+xml;charset=utf-8,' + encodeURIComponent(xml));
+
+      ctx.save();
+      ctx.shadowColor = 'rgba(90,65,30,0.16)';
+      ctx.shadowBlur = 26;
+      ctx.shadowOffsetY = 8;
+      ctx.drawImage(img, 200, 122, 800, 800);
+      ctx.restore();
+
+      // 오방 점
+      var dotColors = ['#1F5C99', '#B23A2E', '#D9A63C', '#2C2A27', '#3E7D5B'];
+      var dotY = 972;
+      dotColors.forEach(function (c, idx) {
+        ctx.beginPath();
+        ctx.arc(W / 2 - 56 + idx * 28, dotY, 6, 0, Math.PI * 2);
+        ctx.fillStyle = c;
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(90,70,40,0.25)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      });
+
+      // 제목
+      var title = (document.getElementById('cardTitle').value || patterns[state.pattern].defaultTitle).trim();
+      var titleFamily = '"Gowun Batang","Noto Serif KR",serif';
+      var size = fitSize(ctx, title, 860, 74, '600', titleFamily);
+      ctx.font = '600 ' + size + 'px ' + titleFamily;
+      ctx.fillStyle = '#382C1E';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'alphabetic';
+      ctx.fillText(title, W / 2, 1080);
+
+      // 금빛 구분선
+      var grad = ctx.createLinearGradient(W / 2 - 200, 0, W / 2 + 200, 0);
+      grad.addColorStop(0, 'rgba(176,138,79,0)');
+      grad.addColorStop(0.5, 'rgba(176,138,79,0.85)');
+      grad.addColorStop(1, 'rgba(176,138,79,0)');
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      ctx.moveTo(W / 2 - 210, 1115);
+      ctx.lineTo(W / 2 + 210, 1115);
+      ctx.stroke();
+
+      // 날짜 · 작가
+      var metaFamily = '"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif';
+      ctx.font = '400 30px ' + metaFamily;
+      ctx.fillStyle = '#6E5F49';
+      ctx.fillText(dateLabel(new Date()) + ' · ' + AUTHOR + ' 지음', W / 2, 1176);
+
+      // 낙관
+      ctx.fillStyle = '#A6382C';
+      var sealSize = 84, sealX = W / 2 - sealSize / 2, sealY = 1214;
+      ctx.beginPath();
+      if (ctx.roundRect) { ctx.roundRect(sealX, sealY, sealSize, sealSize, 5); }
+      else { ctx.rect(sealX, sealY, sealSize, sealSize); }
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(sealX + 6, sealY + 6, sealSize - 12, sealSize - 12);
+      ctx.fillStyle = '#FBEFE0';
+      ctx.font = '600 44px ' + titleFamily;
+      ctx.textBaseline = 'middle';
+      ctx.fillText('丹', W / 2, sealY + sealSize / 2 + 1);
+      ctx.textBaseline = 'alphabetic';
+
+      // 아래 글귀
+      ctx.font = '400 22px ' + metaFamily;
+      ctx.fillStyle = '#A3906E';
+      try { ctx.letterSpacing = '6px'; } catch (e) { /* ignore */ }
+      ctx.fillText('五方色 丹靑 · 오방색 단청 칠하기', W / 2, 1418);
+      try { ctx.letterSpacing = '0px'; } catch (e) { /* ignore */ }
+
+      var blob = await new Promise(function (resolve) { cv.toBlob(resolve, 'image/png'); });
+      if (!blob) throw new Error('blob failed');
+
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = 'dancheong-' + state.pattern + '-' + dateKey(new Date()) + '.png';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 5000);
+    } catch (err) {
+      console.error(err);
+      alert('카드 이미지를 만들지 못했어요. 잠시 후 다시 시도해 주세요.');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = oldText;
+    }
+  }
+
+  /* =========================================================
+     탭
+     ========================================================= */
+  function syncTabs() {
+    Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (t) {
+      var on = t.getAttribute('data-pattern') === state.pattern;
+      t.classList.toggle('is-active', on);
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+  }
+
+  function switchPattern(key) {
+    if (state.pattern === key) return;
+    state.pattern = key;
+    syncTabs();
+    renderPattern();
+  }
+
+  /* =========================================================
+     이벤트 연결
+     ========================================================= */
+  function bind() {
+    svg.addEventListener('click', function (e) {
+      var el = e.target.closest ? e.target.closest('.region') : null;
+      if (el && svg.contains(el)) paint(el);
+    });
+
+    svg.addEventListener('keydown', function (e) {
+      if ((e.key === 'Enter' || e.key === ' ') && e.target.classList && e.target.classList.contains('region')) {
+        e.preventDefault();
+        paint(e.target);
+      }
+    });
+
+    Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (t) {
+      t.addEventListener('click', function () { switchPattern(t.getAttribute('data-pattern')); });
+    });
+
+    document.getElementById('btnTraditional').addEventListener('click', applyTraditional);
+    document.getElementById('btnUndo').addEventListener('click', undo);
+    document.getElementById('btnReset').addEventListener('click', reset);
+    document.getElementById('btnCard').addEventListener('click', openCard);
+    document.getElementById('btnCloseCard').addEventListener('click', closeCard);
+    document.getElementById('btnSavePng').addEventListener('click', downloadCard);
+
+    modal.addEventListener('click', function (e) {
+      if (e.target === modal) closeCard();
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+        closeCard();
+        return;
+      }
+      var tag = (e.target.tagName || '').toLowerCase();
+      if (tag === 'input' || tag === 'textarea') return;
+
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+        e.preventDefault();
+        undo();
+        return;
+      }
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+      var idx = '1234567890'.indexOf(e.key);
+      if (idx >= 0) selectBrush(PALETTE_ORDER[idx]);
+    });
+
+    window.addEventListener('scroll', hideTip, { passive: true });
+  }
+
+  /* =========================================================
+     시작
+     ========================================================= */
+  buildPalette();
+  bind();
+  selectBrush('cheong');
+  renderPattern();
+})();
+</script>
 </body>
 </html>
