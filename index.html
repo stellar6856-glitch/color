@@ -238,7 +238,7 @@
 
   .card-paper {
     position: relative;
-    background: linear-gradient(170deg, #FDF9EE 0%, #FAF3E1 55%, #F4EAD3 100%);
+    background: linear-gradient(170deg, #FCF6E8 0%, #F8EFDB 55%, #F2E6CE 100%);
     border-radius: 6px;
     box-shadow: 0 30px 70px -24px rgba(0, 0, 0, 0.55), inset 0 0 0 1px rgba(228, 214, 182, 0.9);
   }
@@ -463,7 +463,7 @@
     cheong:  { hanja: '靑',  name: '청',   hex: '#1F5C99', group: 'jeong', meaning: '동쪽 · 봄 · 나무를 상징하는 오방정색' },
     jeok:    { hanja: '赤',  name: '적',   hex: '#B23A2E', group: 'jeong', meaning: '남쪽 · 여름 · 불을 상징하는 오방정색' },
     hwang:   { hanja: '黃',  name: '황',   hex: '#D9A63C', group: 'jeong', meaning: '중앙 · 땅을 상징하며 가장 존귀하게 여긴 색' },
-    baek:    { hanja: '白',  name: '백',   hex: '#FAF5E8', group: 'jeong', meaning: '서쪽 · 가을 · 쇠를 상징하는 오방정색' },
+    baek:    { hanja: '白',  name: '백',   hex: '#F8FBF4', group: 'jeong', meaning: '서쪽 · 가을 · 쇠를 상징하는 오방정색' },
     heuk:    { hanja: '黑',  name: '흑',   hex: '#2C2A27', group: 'jeong', meaning: '북쪽 · 겨울 · 물을 상징하는 오방정색' },
     nok:     { hanja: '綠',  name: '녹',   hex: '#3E7D5B', group: 'gan',   meaning: '청과 황 사이 — 새싹과 생명의 빛' },
     hong:    { hanja: '紅',  name: '홍',   hex: '#C9635C', group: 'gan',   meaning: '적과 백 사이 — 따뜻하게 번지는 빛' },
@@ -539,7 +539,7 @@
     paths.push({ id: 'lotus-core', label: '화심 — 꽃의 중심', d: circlePath(cx, cy, 62) });
 
     var decor = [
-      '<circle cx="400" cy="400" r="391" fill="#FCF6E7"/>',
+      '<circle cx="400" cy="400" r="391" fill="#FBF2DE"/>',
       '<circle cx="400" cy="400" r="391" fill="none" stroke="#DECDA8" stroke-width="1.6"/>',
       '<circle cx="400" cy="400" r="383" fill="none" stroke="#C9AE7E" stroke-width="0.9" stroke-dasharray="1 7" stroke-linecap="round"/>',
       '<circle cx="400" cy="400" r="302" fill="none" stroke="#C9AE7E" stroke-width="1.1"/>'
@@ -905,6 +905,7 @@
     clone.removeAttribute('role');
     clone.removeAttribute('aria-label');
     clone.setAttribute('class', extraClass || 'block h-auto w-full');
+    clone.setAttribute('pointer-events', 'none');
     Array.prototype.forEach.call(clone.querySelectorAll('.region'), function (el) {
       el.removeAttribute('tabindex');
       el.removeAttribute('role');
@@ -1003,9 +1004,9 @@
 
       // 한지 바탕
       var paper = ctx.createLinearGradient(0, 0, 0, H);
-      paper.addColorStop(0, '#FDF8EC');
-      paper.addColorStop(0.55, '#FAF3E1');
-      paper.addColorStop(1, '#F3E8D0');
+      paper.addColorStop(0, '#FCF6E8');
+      paper.addColorStop(0.55, '#F8EFDB');
+      paper.addColorStop(1, '#F1E5CC');
       ctx.fillStyle = paper;
       ctx.fillRect(0, 0, W, H);
 
