@@ -553,34 +553,52 @@
      구름 7송이 × (마루 3 + 띠 3) = 42개 영역
      ========================================================= */
   var CLOUDS = [
-    { x: 400, y: 404, s: 1.12, rot: 0 },
-    { x: 204, y: 206, s: 0.64, rot: -16 },
-    { x: 596, y: 206, s: 0.64, rot: 16 },
-    { x: 204, y: 596, s: 0.64, rot: 16 },
-    { x: 596, y: 596, s: 0.64, rot: -16 }
+    { x: 400, y: 366, s: 1.02, rot: 0 },
+    { x: 196, y: 208, s: 0.60, rot: -12 },
+    { x: 604, y: 208, s: 0.60, rot: 12 },
+    { x: 196, y: 596, s: 0.60, rot: 12 },
+    { x: 604, y: 596, s: 0.60, rot: -12 },
+    { x: 400, y: 136, s: 0.40, rot: 0 },
+    { x: 400, y: 664, s: 0.40, rot: 0 }
   ];
+
+  // 전통 비단구름 실루엣을 k배로 줄여 겹친 경계선을 만든다
+  function cloudSil(k) {
+    var ox = 0, oy = -2;
+    function X(x) { return n(ox + (x - ox) * k); }
+    function Y(y) { return n(oy + (y - oy) * k); }
+    function R(r) { return n(r * k); }
+    return 'M' + X(-170) + ',' + Y(20) +
+      ' C' + X(-177) + ',' + Y(-12) + ' ' + X(-164) + ',' + Y(-34) + ' ' + X(-148) + ',' + Y(-42) +
+      ' A' + R(46) + ',' + R(46) + ' 0 0 1 ' + X(-58) + ',' + Y(-42) +
+      ' A' + R(58) + ',' + R(58) + ' 0 0 1 ' + X(58) + ',' + Y(-42) +
+      ' A' + R(46) + ',' + R(46) + ' 0 0 1 ' + X(148) + ',' + Y(-42) +
+      ' C' + X(164) + ',' + Y(-34) + ' ' + X(177) + ',' + Y(-12) + ' ' + X(170) + ',' + Y(20) +
+      ' C' + X(120) + ',' + Y(48) + ' ' + X(60) + ',' + Y(54) + ' ' + X(0) + ',' + Y(48) +
+      ' C' + X(-60) + ',' + Y(54) + ' ' + X(-120) + ',' + Y(48) + ' ' + X(-170) + ',' + Y(20) + ' Z';
+  }
 
   function buildCloud() {
     var groups = [];
-    CLOUDS.forEach(function (c, ci) {
-      var bandL = 'M-120,-26 L-58,-26 L-58,22 L-120,22 A24,24 0 0 1 -120,-26 Z';
-      var bandM = 'M-58,-26 L58,-26 L58,22 L-58,22 Z';
-      var bandR = 'M58,-26 L120,-26 A24,24 0 0 1 120,22 L58,22 Z';
+    var L = [1, 0.78, 0.56, 0.34];
 
+    CLOUDS.forEach(function (c, ci) {
       var paths = [
-        { id: 'cloud-' + ci + '-curlL', label: '구름 왼쪽 소용돌이 ' + (ci + 1), d: annulus(-120, -2, 48, 31, 68, 292) },
-        { id: 'cloud-' + ci + '-curlR', label: '구름 오른쪽 소용돌이 ' + (ci + 1), d: annulus(120, -2, 48, 31, 248, 472) },
-        { id: 'cloud-' + ci + '-lobeL', label: '구름 왼쪽 마루 ' + (ci + 1), d: 'M-136,-26 A38,38 0 0 1 -60,-26 Z' },
-        { id: 'cloud-' + ci + '-lobeC', label: '구름 가운데 마루 ' + (ci + 1), d: 'M-60,-26 A60,60 0 0 1 60,-26 Z' },
-        { id: 'cloud-' + ci + '-lobeR', label: '구름 오른쪽 마루 ' + (ci + 1), d: 'M60,-26 A38,38 0 0 1 136,-26 Z' },
-        { id: 'cloud-' + ci + '-bandL', label: '구름 왼쪽 띠 ' + (ci + 1), d: bandL },
-        { id: 'cloud-' + ci + '-bandM', label: '구름 가운데 띠 ' + (ci + 1), d: bandM },
-        { id: 'cloud-' + ci + '-bandR', label: '구름 오른쪽 띠 ' + (ci + 1), d: bandR }
+        { id: 'cloud-' + ci + '-ring1', label: '구름 테두리 ' + (ci + 1), d: cloudSil(L[0]) + ' ' + cloudSil(L[1]), rule: 'evenodd' },
+        { id: 'cloud-' + ci + '-ring2', label: '구름 가운데 띠 ' + (ci + 1), d: cloudSil(L[1]) + ' ' + cloudSil(L[2]), rule: 'evenodd' },
+        { id: 'cloud-' + ci + '-ring3', label: '구름 안쪽 띠 ' + (ci + 1), d: cloudSil(L[2]) + ' ' + cloudSil(L[3]), rule: 'evenodd' },
+        { id: 'cloud-' + ci + '-core', label: '구름 중심 ' + (ci + 1), d: cloudSil(L[3]) }
+      ];
+
+      var lines = [
+        'M-138,6 C-158,-14 -128,-30 -108,-18 C-92,-8 -102,10 -118,6',
+        'M138,6 C158,-14 128,-30 108,-18 C92,-8 102,10 118,6'
       ];
 
       groups.push({
         transform: 'translate(' + c.x + ' ' + c.y + ') rotate(' + c.rot + ') scale(' + c.s + ')',
-        paths: paths
+        paths: paths,
+        lines: lines
       });
     });
 
@@ -642,6 +660,7 @@
       g.paths.forEach(function (p) {
         var el = document.createElementNS(NS, 'path');
         el.setAttribute('d', p.d);
+        if (p.rule) el.setAttribute('fill-rule', p.rule);
         el.setAttribute('class', 'region');
         el.setAttribute('data-id', p.id);
         el.setAttribute('tabindex', '0');
@@ -649,6 +668,17 @@
         el.setAttribute('aria-label', p.label + ' — 눌러서 칠하기');
         setFill(el, state.fills[state.pattern][p.id]);
         gg.appendChild(el);
+      });
+      (g.lines || []).forEach(function (d) {
+        var ln = document.createElementNS(NS, 'path');
+        ln.setAttribute('d', d);
+        ln.setAttribute('fill', 'none');
+        ln.setAttribute('stroke', '#9E8459');
+        ln.setAttribute('stroke-width', '2');
+        ln.setAttribute('stroke-linecap', 'round');
+        ln.setAttribute('opacity', '0.45');
+        ln.setAttribute('pointer-events', 'none');
+        gg.appendChild(ln);
       });
       svg.appendChild(gg);
     });
@@ -821,14 +851,10 @@
     } else {
       CLOUDS.forEach(function (c, ci) {
         var base = 'cloud-' + ci;
-        map[base + '-lobeL'] = HEX.baek;
-        map[base + '-lobeC'] = HEX.baek;
-        map[base + '-lobeR'] = HEX.baek;
-        map[base + '-bandL'] = HEX.cheong;
-        map[base + '-bandR'] = HEX.cheong;
-        map[base + '-bandM'] = (ci % 2 === 0) ? HEX.byeok : HEX.nok;
-        map[base + '-curlL'] = HEX.hwang;
-        map[base + '-curlR'] = HEX.hwang;
+        map[base + '-ring1'] = HEX.cheong;
+        map[base + '-ring2'] = HEX.byeok;
+        map[base + '-ring3'] = HEX.baek;
+        map[base + '-core'] = HEX.baek;
       });
     }
     return map;
